@@ -177,8 +177,100 @@ const XPS = (() => {
     return { spectra, warnings };
   }
 
+  // ---------- Generic tables (spreadsheets, pasted cells, delimited text) ----------
+  // Text → array of rows. Tabs (spreadsheet paste) win; then ; or , ; then whitespace. Decimal commas are accepted.
+  function textToAoa(text) {
+    const lines = text.replace(/\r/g, '').split('\n').filter(l => l.trim() !== '');
+    const sample = lines.slice(0, 50).join('\n');
+    const sep = /\t/.test(sample) ? /\t/ : /;/.test(sample) ? /;/ : /,\s*\S/.test(sample) && !/\d,\d+\s+\d/.test(sample) && (sample.match(/,/g) || []).length >= lines.slice(0, 50).length ? /,/ : /\s+/;
+    const commaDec = sep.source !== ',' && /\d,\d/.test(sample) && !/\d\.\d/.test(sample);
+    return lines.map(l => l.trim().split(sep).map(c => {
+      const t = c.trim().replace(/^"|"$/g, '');
+      const n = toNum(commaDec ? t.replace(',', '.') : t);
+      return n === null ? t : n;
+    }));
+  }
+  function toNum(v) {
+    if (typeof v === 'number') return isFinite(v) ? v : null;
+    if (v === null || v === undefined) return null;
+    const t = String(v).trim();
+    return /^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(t) ? parseFloat(t) : null;
+  }
+  // Find the columns of a table and guess each column's role: 'be', 'ke', 'y' or 'skip'.
+  function detectTable(aoa, opts = {}) {
+    let rows = (aoa || []).map(r => (r || []).map(c => (c === undefined || c === '') ? null : c)).filter(r => r.some(c => c !== null));
+    const numFrac = r => r.filter(c => toNum(c) !== null).length / Math.max(1, r.filter(c => c !== null).length);
+    const width = Math.max(0, ...rows.map(r => r.length));
+    let transposed = !!opts.transpose;
+    if (opts.transpose === undefined) {
+      const longRows = rows.filter(r => r.filter(c => toNum(c) !== null).length >= 8).length;
+      transposed = rows.length <= 12 && width >= 8 && longRows >= 2 && longRows >= rows.length / 2;
+    }
+    if (transposed) rows = Array.from({ length: width }, (_, j) => rows.map(r => r[j] ?? null)).filter(r => r.some(c => c !== null));
+    let h = 0; while (h < rows.length && h < 5 && numFrac(rows[h]) < 0.5) h++;
+    const head = rows.slice(0, h), body = rows.slice(h);
+    const nC = Math.max(0, ...rows.map(r => r.length));
+    const cols = [];
+    for (let j = 0; j < nC; j++) {
+      const data = body.map(r => toNum(r[j]));
+      const label = head.map(r => r[j]).filter(c => c !== null && c !== undefined && String(c).trim() !== '').map(String).join(' ').trim();
+      cols.push({ label, data, n: data.filter(v => v !== null).length });
+    }
+    const isAxis = c => {
+      const v = c.data.filter(x => x !== null);
+      if (v.length < 5) return false;
+      const d = v.slice(1).map((x, i) => x - v[i]);
+      const allPos = d.every(x => x > 0), allNeg = d.every(x => x < 0);
+      if (!allPos && !allNeg) return false;
+      const m = d.reduce((a, x) => a + x, 0) / d.length, sd = Math.sqrt(d.reduce((a, x) => a + (x - m) ** 2, 0) / d.length);
+      return sd <= Math.abs(m) * 0.25 && Math.abs(m) < 5 && v.every(x => x > -20 && x < 2000);
+    };
+    cols.forEach(c => {
+      const L = c.label.toLowerCase();
+      if (c.n < 5) c.role = 'skip';
+      else if (/transmission|^#|index|^stt$/.test(L)) c.role = 'skip';
+      else if (/binding|\bbe\b|b\.e\.|năng lượng liên kết/.test(L)) c.role = 'be';
+      else if (/kinetic|\bke\b|k\.e\.|động năng/.test(L)) c.role = 'ke';
+      else c.role = L && !/energy|ev\b/.test(L) ? 'y' : (isAxis(c) ? 'be' : 'y');
+    });
+    if (!cols.some(c => c.role === 'be' || c.role === 'ke')) { const f = cols.find(c => c.role !== 'skip' && isAxis(c)) || cols.find(c => c.role !== 'skip'); if (f) f.role = 'be'; }
+    // a KE column next to a BE column (KE, BE, I exports) is redundant
+    if (cols.some(c => c.role === 'be')) cols.forEach(c => { if (c.role === 'ke') c.role = 'skip'; });
+    return { cols, transposed, headerRows: h };
+  }
+  // Build spectra from a detected (and possibly user-edited) table.
+  function tableToSpectra(T, opts = {}) {
+    const { name = 'Spectrum', source = 'table', unit = null, acq = null, hv = 1486.6 } = opts;
+    const cols = T.cols, out = [], warnings = [];
+    const ys = cols.map((c, j) => ({ c, j })).filter(o => o.c.role === 'y');
+    ys.forEach(({ c, j }, k) => {
+      let ax = null;
+      for (let i = j - 1; i >= 0; i--) if (cols[i].role === 'be' || cols[i].role === 'ke') { ax = cols[i]; break; }
+      if (!ax) ax = cols.find(cc => cc.role === 'be' || cc.role === 'ke');
+      if (!ax) return;
+      const be = [], y = [];
+      c.data.forEach((v, i) => { const e = ax.data[i]; if (v !== null && e !== null && e !== undefined) { be.push(ax.role === 'ke' ? hv - e : e); y.push(v); } });
+      if (be.length < 5) return;
+      const L = c.label.toLowerCase();
+      const u = unit || (/cps|c\/s|\/s\b|per sec/.test(L) ? 'cps' : /count/.test(L) ? 'counts' : 'au');
+      const generic = !c.label || /^(intensity|counts?|cps|y|signal|cường độ)\b/i.test(c.label.trim());
+      const nm = ys.length === 1 ? (opts.name || (generic ? name : c.label)) : (generic ? name + ' #' + (k + 1) : c.label);
+      const meta = { 'Cột dùng': (ax.label || (ax.role === 'ke' ? 'KE' : 'BE')) + ' · ' + (c.label || tr('cột {0}', j + 1)) };
+      if (ax.role === 'ke') { meta['Ghi chú'] = tr('BE = {0} − KE', hv); }
+      if (T.transposed) meta['Bố cục'] = tr('số liệu theo hàng (đã đổi sang cột)');
+      out.push(makeSpectrum({ name: nm.replace(/\s*\((cps|counts?|a\.?u\.?)\)\s*$/i, '').trim() || name, source, be, y, unit: u, acq: u === 'au' ? null : acq, hv, meta }));
+    });
+    if (!out.length) throw new Error(tr('Không tìm thấy cột số (Binding Energy, Intensity) trong file.'));
+    return { spectra: out, warnings };
+  }
+  function parseTable(aoa, fileName, opts = {}) {
+    const T = detectTable(aoa, opts);
+    return Object.assign(tableToSpectra(T, Object.assign({ name: fileName.replace(/\.[^.]+$/, ''), source: fileName }, opts)), { table: T });
+  }
   function parseAny(text, fileName) {
-    return /^\s*VAMAS/i.test(text) || /\.vms$/i.test(fileName) ? parseVamas(text, fileName) : parseColumns(text, fileName);
+    if (/^\s*VAMAS/i.test(text) || /\.vms$/i.test(fileName)) return parseVamas(text, fileName);
+    if (/^\s*Dataset\b/im.test(text) || /dwell time|number of (sweeps|scans)/i.test(text)) return parseColumns(text, fileName);
+    try { return parseTable(textToAoa(text), fileName); } catch (e) { return parseColumns(text, fileName); }
   }
 
   let uid = 1;
@@ -638,7 +730,7 @@ const XPS = (() => {
   return {
     VERSION, SHAPES, RSF,
     set t(fn) { T = fn || (s => s); },
-    parseVamas, parseColumns, parseAny, makeSpectrum, reviveSpectrum, normComp,
+    parseVamas, parseColumns, parseAny, textToAoa, detectTable, tableToSpectra, parseTable, makeSpectrum, reviveSpectrum, normComp,
     xOf, regionIdx, background, compCurve, mainLineAt, shapeVal, compArea, measuredFwhm, shapeLabel,
     fit, fitErrors, stats, signature, round, unitFactor,
     guessRsfKey, regionIntensity, toCps, quantify, methodsText

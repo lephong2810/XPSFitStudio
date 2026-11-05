@@ -52,7 +52,8 @@ Sau lần mở đầu tiên có mạng, app chạy được cả khi không có 
 
 | Việc cần làm | Thao tác |
 |---|---|
-| Mở phổ | Nút **Mở phổ**, hoặc kéo thả file vào cột trái. Đọc được `.vms` (VAMAS), file văn bản xuất từ máy đo (cột KE/BE/cps, kể cả không có đuôi) và `.txt`/`.csv` hai cột |
+| Mở phổ | Nút **Mở phổ**, hoặc kéo thả file vào cột trái. Đọc được `.vms` (VAMAS), Excel (`.xlsx`, `.xls`, `.ods`), file văn bản xuất từ máy đo (cột KE/BE/cps, kể cả không có đuôi) và `.txt`/`.csv`. Tự nhận cột BE và cường độ, kể cả số liệu xếp theo hàng, nhiều cột cường độ chung một cột BE, hoặc từng cặp cột BE–cường độ |
+| Dán số liệu | Nút **Dán số liệu**: chép các ô trong Excel rồi dán vào. Bảng xem trước cho chọn vai trò từng cột (BE, KE, cường độ, bỏ qua), đổi hàng ↔ cột, đặt tên phổ và đơn vị, xem trước hình rồi bấm **Thêm vào danh sách phổ** |
 | Đơn vị, thời gian thu | Tab **Dữ liệu & BE**: chọn counts / cps / a.u. và thời gian thu mỗi điểm (dwell × số lần quét). Cần đúng để χ² và định lượng có ý nghĩa |
 | Hiệu chỉnh BE | Tab **Dữ liệu & BE**: nhập đỉnh đo được và giá trị chuẩn (C 1s = 284.8 eV) → **Tính độ dịch** → **Áp dụng cho mọi phổ** |
 | Trừ nền | Tab **Nền**: vùng, kiểu nền (Shirley, Smart, Tougaard U2, tuyến tính), điểm neo. Kéo vòng tròn trên đồ thị để chỉnh mức nền |

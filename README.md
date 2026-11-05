@@ -19,7 +19,9 @@ XPS Fit Studio takes a spectrum from the instrument file to a fitted, quantified
 - **Data in:**
   - VAMAS / ISO 14976 files (`.vms`), multi-block, kinetic- or binding-energy abscissa.
   - Labelled text exports with KE / BE / intensity (cps) columns and dwell time / number of sweeps (files without an extension work too).
-  - Plain two-column TXT / CSV. Drag and drop several files at once.
+  - Excel workbooks (`.xlsx`, `.xls`, `.ods`) and delimited TXT / CSV: BE and intensity columns are detected automatically, including data laid out in rows, several intensity columns sharing one BE column, or BE–intensity column pairs.
+  - A paste workbook: copy cells from any spreadsheet, check the column roles in a preview table and plot, then add the spectra.
+  - Drag and drop several files at once.
 - **Binding-energy calibration:** manual shift, or reference to a known line (e.g. C 1s = 284.8 eV), then apply the same shift to every region.
 - **Backgrounds:**
   - Iterative Shirley, smart Shirley (kept below the data), two-parameter Tougaard U2, linear.
@@ -58,7 +60,7 @@ XPS Fit Studio takes a spectrum from the instrument file to a fitted, quantified
 ## Quick start
 
 1. Open <https://lephong2810.github.io/XPSFitStudio/>. Three simulated example regions (C 1s, O 1s, Cu 2p) are loaded so you can try every step.
-2. **Open spectra** (or drag files onto the left column). Example files are in [`xpsfit/examples/`](xpsfit/examples/).
+2. **Open spectra** (or drag files onto the left column), or use **Paste data** to paste cells copied from a spreadsheet. Example files are in [`xpsfit/examples/`](xpsfit/examples/).
 3. Work through the tabs:
    - **Data & BE:** check the intensity unit and acquisition time, calibrate the BE scale, then *Apply to all spectra*.
    - **Background:** set the region and background type; add anchors where needed.

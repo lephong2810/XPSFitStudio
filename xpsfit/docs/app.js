@@ -1,6 +1,7 @@
 /* XPS Fit Studio — user interface. © 2026 Phong Hoai Le — MIT License. */
 (() => {
   const $ = id => document.getElementById(id);
+  const on = (id, ev, fn) => $(id).addEventListener(ev, fn);
   const t = I18N.t;
   XPS.t = I18N.t;
   const REPO = 'https://github.com/lephong2810/XPSFitStudio';
@@ -114,6 +115,13 @@
     let added = 0; const errs = [];
     for (const f of files) {
       try {
+        if (/\.(xlsx|xlsm|xls|ods)$/i.test(f.name)) {
+          const res = await readWorkbook(f);
+          if (res.ask) { openPaste(res.ask, f.name); continue; }
+          if (!added) spectra = spectra.filter(s => !s.sample);
+          res.spectra.forEach(s => spectra.push(s)); added += res.spectra.length;
+          continue;
+        }
         const text = await f.text();
         if (/\.json$|\.xpsfit$/i.test(f.name) && /"app"\s*:\s*"XPS Fit Studio"/.test(text.slice(0, 200))) { loadProject(text, true); toast(t('Đã mở project {0}', f.name)); continue; }
         const res = XPS.parseAny(text, f.name);
@@ -126,6 +134,118 @@
     if (added) { cur = spectra.length - added; afterStructure(); toast(t('Đã đọc {0} phổ', added) + (errs.length ? t(' (có cảnh báo)') : '')); }
     if (errs.length) setMsg(errs.join('\n'), true);
   }
+  // Spreadsheet files: every sheet with a BE column and at least one intensity column becomes spectra.
+  // When a sheet has no header and several numeric columns, the paste workbook opens so the columns can be checked.
+  async function readWorkbook(f) {
+    if (!window.XLSX) throw new Error(t('Thư viện Excel chưa tải xong, thử lại sau giây lát'));
+    const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' });
+    const base = f.name.replace(/\.[^.]+$/, ''), out = [];
+    let ask = null;
+    wb.SheetNames.forEach(sn => {
+      const aoa = XLSX.utils.sheet_to_json(wb.Sheets[sn], { header: 1, raw: true, blankrows: false, defval: null });
+      if (!aoa.length) return;
+      try {
+        const T = XPS.detectTable(aoa);
+        const nY = T.cols.filter(c => c.role === 'y').length;
+        if (!T.headerRows && nY > 1 && wb.SheetNames.length === 1) { ask = aoa; return; }
+        const nm = wb.SheetNames.length > 1 && !/^(sheet|trang tính)\s*\d*$/i.test(sn) ? sn : base;
+        out.push(...XPS.tableToSpectra(T, { name: nm, source: f.name + (wb.SheetNames.length > 1 ? ' · ' + sn : '') }).spectra);
+      } catch (e) { if (!ask && wb.SheetNames.length === 1) ask = aoa; }
+    });
+    return out.length ? { spectra: out } : { ask: ask || [] };
+  }
+
+  // ======================================================================
+  // Paste workbook
+  // ======================================================================
+  let pasteAoa = [], pasteT = null, pasteFlip = false, pasteSrc = '';
+  const ROLES = [['be', 'BE (eV)'], ['ke', 'KE (eV)'], ['y', 'Cường độ'], ['skip', 'Bỏ qua']];
+  function openPaste(aoa, src) {
+    pasteAoa = aoa || []; pasteFlip = false; pasteSrc = src || t('Dán từ bảng tính');
+    $('pasteText').value = aoa && aoa.length ? aoa.slice(0, 2000).map(r => r.map(c => c === null || c === undefined ? '' : c).join('\t')).join('\n') : '';
+    if (src && !$('pName').value) $('pName').value = src.replace(/\.[^.]+$/, '');
+    detectPaste(); openDlg('dlgPaste');
+    setTimeout(() => { if (!aoa || !aoa.length) $('pasteText').focus(); }, 50);
+  }
+  function detectPaste(keepRoles) {
+    const old = keepRoles && pasteT ? pasteT.cols.map(c => c.role) : null;
+    try { pasteT = pasteAoa.length ? XPS.detectTable(pasteAoa, { transpose: pasteFlip ? !XPS.detectTable(pasteAoa).transposed : undefined }) : null; } catch (e) { pasteT = null; }
+    if (pasteT && old && old.length === pasteT.cols.length) pasteT.cols.forEach((c, i) => c.role = old[i]);
+    renderPaste();
+  }
+  function renderPaste() {
+    const g = $('pasteGrid'); g.innerHTML = '';
+    const T = pasteT;
+    if (!T || !T.cols.length) { $('pasteInfo').textContent = pasteAoa.length ? t('Không đọc được số liệu.') : ''; $('pasteAdd').disabled = true; Plotly.purge('pastePlot'); $('pastePlot').hidden = true; $('pHv').closest('.field').hidden = true; return; }
+    const nRows = Math.max(0, ...T.cols.map(c => c.data.length));
+    $('pasteInfo').textContent = t('{0} cột × {1} dòng', T.cols.length, nRows) + (T.transposed ? ' · ' + t('đã đổi hàng thành cột') : '');
+    const thead = document.createElement('thead'), r1 = document.createElement('tr'), r2 = document.createElement('tr');
+    r1.appendChild(document.createElement('th')); r2.appendChild(document.createElement('th'));
+    T.cols.forEach((c, j) => {
+      const th = document.createElement('th'), sel = document.createElement('select'); sel.id = 'pc' + j;
+      ROLES.forEach(([k, l]) => sel.add(new Option(t(l), k))); sel.value = c.role;
+      sel.onchange = () => { c.role = sel.value; renderPaste(); };
+      th.appendChild(sel); if (c.role === 'skip') th.className = 'off'; r1.appendChild(th);
+      const th2 = document.createElement('th'), inp = document.createElement('input'); inp.type = 'text'; inp.id = 'pl' + j; inp.value = c.label; inp.placeholder = t('cột {0}', j + 1);
+      inp.onchange = () => { c.label = inp.value.trim(); renderPaste(); };
+      th2.appendChild(inp); if (c.role === 'skip') th2.className = 'off'; r2.appendChild(th2);
+    });
+    thead.append(r1, r2); g.appendChild(thead);
+    const tb = document.createElement('tbody'), show = Math.min(nRows, 6);
+    for (let i = 0; i < show; i++) {
+      const tr = document.createElement('tr'), rh = document.createElement('td'); rh.className = 'rh'; rh.textContent = i + 1; tr.appendChild(rh);
+      T.cols.forEach(c => { const td = document.createElement('td'); td.textContent = c.data[i] ?? ''; if (c.role === 'skip') td.className = 'off'; tr.appendChild(td); });
+      tb.appendChild(tr);
+    }
+    if (nRows > show) { const tr = document.createElement('tr'); tr.className = 'more'; const td = document.createElement('td'); td.colSpan = T.cols.length + 1; td.textContent = t('… và {0} dòng nữa', nRows - show); tr.appendChild(td); tb.appendChild(tr); }
+    g.appendChild(tb);
+    const hasKE = T.cols.some(c => c.role === 'ke');
+    $('pHv').closest('.field').hidden = !hasKE;
+    let res = null;
+    try { res = XPS.tableToSpectra(T, pasteOpts()); } catch (e) { }
+    $('pasteAdd').disabled = !res;
+    $('pasteAdd').textContent = res && res.spectra.length > 1 ? t('Thêm {0} phổ vào danh sách', res.spectra.length) : t('Thêm vào danh sách phổ');
+    $('pastePlot').hidden = !res;
+    if (res) {
+      const tr = res.spectra.map((s, k) => ({ x: s.be, y: s.y, name: s.name, mode: 'lines', line: { width: 1.4, color: PAL[k % PAL.length] } }));
+      const ink = css('--plot-ink'), grid = css('--plot-grid');
+      Plotly.react('pastePlot', tr, { margin: { l: 56, r: 10, t: 8, b: 36 }, paper_bgcolor: 'rgba(0,0,0,0)', plot_bgcolor: css('--plot-bg'), font: { family: css('--f-ui'), size: 11, color: ink },
+        xaxis: { autorange: 'reversed', title: { text: 'Binding energy (eV)' }, gridcolor: grid, showline: true, mirror: true, linecolor: ink }, yaxis: { gridcolor: grid, showline: true, mirror: true, linecolor: ink, exponentformat: 'power' },
+        showlegend: res.spectra.length > 1, legend: { orientation: 'h', y: 1.02, yanchor: 'bottom' } }, { displayModeBar: false, responsive: true });
+    } else Plotly.purge('pastePlot');
+  }
+  function pasteOpts() {
+    const a = parseFloat($('pAcq').value);
+    return { name: $('pName').value.trim() || pasteSrc.replace(/\.[^.]+$/, '') || 'Spectrum', source: pasteSrc, unit: $('pUnit').value || null, acq: a > 0 ? a : null, hv: parseFloat($('pHv').value) || 1486.6 };
+  }
+  let pasteTimer = null;
+  on('pasteText', 'input', () => { clearTimeout(pasteTimer); pasteTimer = setTimeout(() => { pasteAoa = XPS.textToAoa($('pasteText').value); if (pasteSrc === t('Dán từ bảng tính') || !pasteSrc) pasteSrc = t('Dán từ bảng tính'); detectPaste(); }, 200); });
+  on('pasteFlip', 'click', () => { pasteFlip = !pasteFlip; detectPaste(); });
+  on('pasteClear', 'click', () => { $('pasteText').value = ''; pasteAoa = []; pasteT = null; renderPaste(); $('pasteText').focus(); });
+  ['pName', 'pUnit', 'pAcq', 'pHv'].forEach(id => on(id, 'change', renderPaste));
+  on('pasteOpenFile', 'click', () => $('pasteFile').click());
+  on('pasteFile', 'change', async e => {
+    const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+    try {
+      let aoa;
+      if (/\.(xlsx|xlsm|xls|ods)$/i.test(f.name)) { const wb = XLSX.read(await f.arrayBuffer(), { type: 'array' }); aoa = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { header: 1, raw: true, blankrows: false, defval: null }); }
+      else aoa = XPS.textToAoa(await f.text());
+      pasteSrc = f.name; if (!$('pName').value) $('pName').value = f.name.replace(/\.[^.]+$/, '');
+      pasteAoa = aoa; $('pasteText').value = aoa.slice(0, 2000).map(r => r.map(c => c ?? '').join('\t')).join('\n'); pasteFlip = false; detectPaste();
+    } catch (err) { $('pasteInfo').textContent = err.message; }
+  });
+  on('pasteAdd', 'click', () => {
+    try {
+      const res = XPS.tableToSpectra(pasteT, pasteOpts());
+      spectra = spectra.filter(s => !s.sample);
+      res.spectra.forEach(s => spectra.push(s));
+      cur = spectra.length - res.spectra.length; afterStructure();
+      $('dlgPaste').close(); toast(t('Đã đọc {0} phổ', res.spectra.length));
+      $('pName').value = ''; $('pasteText').value = ''; pasteAoa = []; pasteT = null;
+    } catch (e) { $('pasteInfo').textContent = e.message; }
+  });
+  on('mPaste', 'click', () => openPaste(null)); on('openPaste', 'click', () => openPaste(null));
+
   async function saveFile(filename, data, mime) {
     if (window.claude && typeof window.claude.use === 'function') {
       let dl = null;
@@ -448,7 +568,6 @@
   // ======================================================================
   // Controls
   // ======================================================================
-  const on = (id, ev, fn) => $(id).addEventListener(ev, fn);
   on('sName', 'change', e => { S().name = e.target.value.trim() || S().name; renderList(); renderControls(); afterEdit(); });
   on('sHv', 'change', e => { S().hv = +e.target.value || 1486.6; afterEdit(); });
   on('sUnit', 'change', e => { S().unit = e.target.value; $('sAcq').disabled = S().unit === 'au'; if (S().fit) S().fit = null; afterEdit(); renderPeakErrors(); });

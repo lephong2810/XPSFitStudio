@@ -1,6 +1,6 @@
 /* XPS Fit Studio service worker: install as an app and work offline.
    VERSION is updated by build_docs.py whenever the app files change. */
-const VERSION = "3a343d1982";
+const VERSION = "50e41dfa91";
 const CACHE = "xpsfit-" + VERSION;
 const SHELL = [ "./", "index.html", "styles.css", "fonts.css", "i18n.js", "core.js", "app.js", "manifest.webmanifest", "vendor/plotly-2.27.0.min.js", "vendor/xlsx-0.18.5.full.min.js", "icons/logo.svg", "icons/favicon-64.png", "icons/icon-192.png", "icons/icon-512.png", "fonts/be-vietnam-pro-latin-400-normal.woff2", "fonts/be-vietnam-pro-latin-500-normal.woff2", "fonts/be-vietnam-pro-latin-600-normal.woff2", "fonts/be-vietnam-pro-latin-700-normal.woff2", "fonts/be-vietnam-pro-latin-ext-400-normal.woff2", "fonts/be-vietnam-pro-latin-ext-500-normal.woff2", "fonts/be-vietnam-pro-latin-ext-600-normal.woff2", "fonts/be-vietnam-pro-latin-ext-700-normal.woff2", "fonts/be-vietnam-pro-vietnamese-400-normal.woff2", "fonts/be-vietnam-pro-vietnamese-500-normal.woff2", "fonts/be-vietnam-pro-vietnamese-600-normal.woff2", "fonts/be-vietnam-pro-vietnamese-700-normal.woff2", "fonts/jetbrains-mono-latin-400-normal.woff2", "fonts/jetbrains-mono-latin-500-normal.woff2", "fonts/jetbrains-mono-latin-ext-400-normal.woff2", "fonts/jetbrains-mono-latin-ext-500-normal.woff2", "fonts/jetbrains-mono-vietnamese-400-normal.woff2", "fonts/jetbrains-mono-vietnamese-500-normal.woff2" ];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });

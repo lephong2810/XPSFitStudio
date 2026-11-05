@@ -25,6 +25,7 @@
     </a>
     <nav class="barbtns" aria-label="Tệp">
       <button class="bbtn" id="mOpen" title="Mở file phổ (.vms, .txt, .csv)"><svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Mở phổ</span></button>
+      <button class="bbtn" id="mPaste" title="Dán số liệu từ Excel hoặc file khác"><svg viewBox="0 0 24 24"><rect x="6" y="4" width="12" height="17" rx="2"/><path d="M9 4V3h6v1M9 10h6M9 14h6M9 18h3"/></svg><span>Dán số liệu</span></button>
       <button class="bbtn" id="mSave" title="Lưu project (Ctrl/⌘ S)"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></svg><span>Lưu project</span></button>
       <button class="bbtn" id="mLoad" title="Mở project (.xpsfit.json)"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4M4 19h16"/></svg><span>Mở project</span></button>
       <span class="sep"></span>
@@ -47,9 +48,11 @@
     <div class="sidehead"><p class="label">Phổ</p><span class="count num" id="specCount" data-dyn></span></div>
     <label class="drop" id="drop" for="file">
       <strong>Mở file phổ</strong>
-      <small>VAMAS (.vms), file văn bản xuất từ máy đo (kể cả không có đuôi), .txt / .csv hai cột. Kéo thả được nhiều file.</small>
+      <small>VAMAS (.vms), Excel (.xlsx), file văn bản xuất từ máy đo (kể cả không có đuôi), .txt / .csv. Kéo thả được nhiều file.</small>
     </label>
+    <button class="btn sm" id="openPaste">Dán số liệu từ bảng tính</button>
     <input type="file" id="file" multiple hidden>
+    <input type="file" id="pasteFile" accept=".xlsx,.xls,.xlsm,.ods,.csv,.txt,.dat,.xy" hidden>
     <input type="file" id="projFile" accept=".json,.xpsfit,application/json" hidden>
     <ul class="speclist" id="speclist" data-dyn></ul>
     <button class="btn sm ghost" id="loadSamples">+ Thêm dữ liệu mẫu</button>
@@ -231,6 +234,33 @@
       <h4>Giới thiệu</h4>
       <p id="aboutLine" data-dyn></p>
       <p>Phát triển bởi TS. Lê Hoài Phong, Khoa Hóa học, Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM. Phát hành theo giấy phép MIT. Dùng Plotly.js (MIT) và SheetJS Community Edition (Apache-2.0). XPS Fit Studio là dự án độc lập, không liên kết với hãng thiết bị hay phần mềm nào; mọi nhãn hiệu thuộc về chủ sở hữu.</p>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dlgPaste" class="wide" aria-labelledby="pTitle">
+  <div class="dhead"><h3 id="pTitle">Dán số liệu từ bảng tính</h3><button class="x" data-close aria-label="Đóng">×</button></div>
+  <div class="dbody">
+    <p class="hint">Chép các ô trong Excel hoặc file khác (Ctrl/⌘ C) rồi dán vào ô dưới đây (Ctrl/⌘ V). Số liệu xếp theo cột hay theo hàng đều được; có thể dán cả dòng tiêu đề.</p>
+    <textarea id="pasteText" class="pastebox" rows="6" spellcheck="false" placeholder="Dán vào đây, ví dụ:&#10;Binding energy (eV)&#9;Intensity&#10;295.0&#9;3120&#10;294.9&#9;3135"></textarea>
+    <div class="row">
+      <button class="btn sm" id="pasteOpenFile">Mở file Excel / CSV vào bảng</button>
+      <button class="btn sm" id="pasteFlip">Đổi hàng ↔ cột</button>
+      <button class="btn sm ghost" id="pasteClear">Xoá</button>
+      <span class="hint" id="pasteInfo" data-dyn></span>
+    </div>
+    <div class="row">
+      <div class="field"><label for="pName">Tên phổ (mức lõi)</label><input type="text" id="pName" placeholder="C 1s"></div>
+      <div class="field"><label for="pUnit">Đơn vị cường độ</label>
+        <select id="pUnit"><option value="">Tự nhận theo tiêu đề</option><option value="counts">counts (số đếm)</option><option value="cps">counts/s (cps)</option><option value="au">a.u. (không rõ)</option></select></div>
+      <div class="field"><label for="pAcq">Thời gian thu mỗi điểm (s)</label><input type="number" id="pAcq" step="0.01" min="0"></div>
+      <div class="field"><label for="pHv">hν (eV)</label><input type="number" id="pHv" step="0.1" value="1486.6"></div>
+    </div>
+    <div class="tablewrap"><table class="res pgridt" id="pasteGrid" data-dyn></table></div>
+    <div id="pastePlot" class="pasteplot"></div>
+    <div class="row dactions">
+      <button class="btn" data-close>Huỷ</button>
+      <button class="btn primary" id="pasteAdd" disabled>Thêm vào danh sách phổ</button>
     </div>
   </div>
 </dialog>

@@ -222,3 +222,18 @@ kbd { font-family: var(--f-num); font-size: 11px; border: 1px solid var(--line);
 @media (max-width: 640px) { .brand small { display: none; } .bbtn span { display: none; } }
 #resTable .pm { display: block; }
 #resTable td { white-space: normal; }
+
+/* paste workbook */
+dialog.wide { width: min(980px, calc(100% - 32px)); }
+.pastebox { font-family: var(--f-num); font-size: 12px; white-space: pre; overflow: auto; min-height: 110px; }
+.pgridt th { vertical-align: bottom; }
+.pgridt th select { max-width: 130px; }
+.pgridt th input[type=text] { width: 120px; font-size: 12px; padding: 3px 5px; }
+.pgridt td { font-family: var(--f-num); color: var(--ink); }
+.pgridt td.off, .pgridt th.off { opacity: .4; }
+.pgridt .rh { color: var(--muted); font-size: 11px; text-align: right; }
+.pgridt tr.more td { color: var(--muted); font-family: var(--f-ui); text-align: left; }
+.dactions { justify-content: flex-end; position: sticky; bottom: 0; background: var(--panel); padding-block: 10px 2px; border-top: 1px solid var(--line); margin-top: -6px; }
+dialog { overflow: auto; }
+.pasteplot { width: 100%; height: 190px; border: 1px solid var(--line); border-radius: 8px; background: var(--plot-bg); }
+.side #openPaste { width: 100%; justify-content: center; }
