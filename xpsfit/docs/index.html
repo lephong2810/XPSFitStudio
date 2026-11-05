@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>XPS Fit Studio</title>
+<meta name="description" content="Free, browser-based XPS peak fitting: VAMAS import, BE calibration, Shirley/Tougaard backgrounds, GL and asymmetric line shapes, χ² and uncertainties, RSF quantification, Excel export.">
+<meta name="theme-color" content="#1e2a44">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/svg+xml" href="icons/logo.svg">
+<link rel="icon" type="image/png" sizes="64x64" href="icons/favicon-64.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta property="og:title" content="XPS Fit Studio">
+<meta property="og:description" content="Free, browser-based XPS peak fitting: VAMAS import, BE calibration, Shirley/Tougaard backgrounds, GL and asymmetric line shapes, χ² and uncertainties, RSF quantification, Excel export.">
+<link rel="stylesheet" href="fonts.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-in">
+    <a class="brand" href="#" aria-label="XPS Fit Studio">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><rect x="2.5" y="2.5" width="59" height="59" rx="14" fill="#2b3d63"/><path d="M8.30 48.6 8.30 48.60 L8.89 48.60 L9.49 48.60 L10.08 48.60 L10.67 48.60 L11.26 48.60 L11.86 48.60 L12.45 48.60 L13.04 48.60 L13.63 48.60 L14.23 48.60 L14.82 48.60 L15.41 48.60 L16.00 48.60 L16.59 48.60 L17.19 48.60 L17.78 48.60 L18.37 48.60 L18.97 48.60 L19.56 48.60 L20.15 48.60 L20.74 48.60 L21.34 48.60 L21.93 48.60 L22.52 48.60 L23.11 48.60 L23.71 48.60 L24.30 48.60 L24.89 48.60 L25.48 48.60 L26.08 48.60 L26.67 48.60 L27.26 48.60 L27.85 48.60 L28.45 48.60 L29.04 48.60 L29.63 48.60 L30.22 48.59 L30.82 48.58 L31.41 48.55 L32.00 48.48 L32.59 48.35 L33.19 48.11 L33.78 47.68 L34.37 46.99 L34.96 45.95 L35.56 44.49 L36.15 42.59 L36.74 40.34 L37.33 37.90 L37.93 35.55 L38.52 33.61 L39.11 32.39 L39.70 32.10 L40.30 32.78 L40.89 34.32 L41.48 36.46 L42.07 38.88 L42.67 41.28 L43.26 43.40 L43.85 45.13 L44.44 46.41 L45.04 47.31 L45.63 47.88 L46.22 48.22 L46.81 48.41 L47.41 48.51 L48.00 48.56 L48.59 48.58 L49.18 48.59 L49.78 48.60 L50.37 48.60 L50.96 48.60 L51.55 48.60 L52.15 48.60 L52.74 48.60 L53.33 48.60 L53.92 48.60 L54.52 48.60 L55.11 48.60 L55.70 48.60 L55.70 48.6 Z" fill="#e6b04a" opacity=".7"/><path d="M8.30 48.6 8.30 48.60 L8.89 48.60 L9.49 48.60 L10.08 48.60 L10.67 48.60 L11.26 48.60 L11.86 48.60 L12.45 48.60 L13.04 48.60 L13.63 48.60 L14.23 48.60 L14.82 48.60 L15.41 48.60 L16.00 48.60 L16.59 48.60 L17.19 48.60 L17.78 48.60 L18.37 48.59 L18.97 48.57 L19.56 48.52 L20.15 48.40 L20.74 48.15 L21.34 47.65 L21.93 46.72 L22.52 45.15 L23.11 42.69 L23.71 39.19 L24.30 34.65 L24.89 29.34 L25.48 23.86 L26.08 19.01 L26.67 15.65 L27.26 14.45 L27.85 15.65 L28.45 19.01 L29.04 23.86 L29.63 29.34 L30.22 34.65 L30.82 39.19 L31.41 42.69 L32.00 45.15 L32.59 46.72 L33.19 47.65 L33.78 48.15 L34.37 48.40 L34.96 48.52 L35.56 48.57 L36.15 48.59 L36.74 48.60 L37.33 48.60 L37.93 48.60 L38.52 48.60 L39.11 48.60 L39.70 48.60 L40.30 48.60 L40.89 48.60 L41.48 48.60 L42.07 48.60 L42.67 48.60 L43.26 48.60 L43.85 48.60 L44.44 48.60 L45.04 48.60 L45.63 48.60 L46.22 48.60 L46.81 48.60 L47.41 48.60 L48.00 48.60 L48.59 48.60 L49.18 48.60 L49.78 48.60 L50.37 48.60 L50.96 48.60 L51.55 48.60 L52.15 48.60 L52.74 48.60 L53.33 48.60 L53.92 48.60 L54.52 48.60 L55.11 48.60 L55.70 48.60 L55.70 48.6 Z" fill="#7fb0ea" opacity=".75"/><path d="M8.30 48.60 L8.89 48.60 L9.49 48.60 L10.08 48.60 L10.67 48.60 L11.26 48.60 L11.86 48.60 L12.45 48.60 L13.04 48.60 L13.63 48.60 L14.23 48.60 L14.82 48.60 L15.41 48.60 L16.00 48.60 L16.59 48.60 L17.19 48.60 L17.78 48.60 L18.37 48.59 L18.97 48.57 L19.56 48.52 L20.15 48.40 L20.74 48.15 L21.34 47.65 L21.93 46.72 L22.52 45.15 L23.11 42.69 L23.71 39.19 L24.30 34.65 L24.89 29.34 L25.48 23.85 L26.08 18.99 L26.67 15.61 L27.26 14.35 L27.85 15.43 L28.45 18.56 L29.04 23.02 L29.63 27.92 L30.22 32.44 L30.82 36.03 L31.41 38.53 L32.00 40.10 L32.59 41.05 L33.19 41.68 L33.78 42.17 L34.37 42.50 L34.96 42.53 L35.56 42.08 L36.15 41.03 L36.74 39.40 L37.33 37.38 L37.93 35.29 L38.52 33.49 L39.11 32.34 L39.70 32.08 L40.30 32.77 L40.89 34.31 L41.48 36.46 L42.07 38.88 L42.67 41.28 L43.26 43.40 L43.85 45.13 L44.44 46.41 L45.04 47.31 L45.63 47.88 L46.22 48.22 L46.81 48.41 L47.41 48.51 L48.00 48.56 L48.59 48.58 L49.18 48.59 L49.78 48.60 L50.37 48.60 L50.96 48.60 L51.55 48.60 L52.15 48.60 L52.74 48.60 L53.33 48.60 L53.92 48.60 L54.52 48.60 L55.11 48.60 L55.70 48.60" fill="none" stroke="#fff" stroke-width="3.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <b>XPS Fit Studio</b><small id="ver">v1.0.0</small>
+    </a>
+    <nav class="barbtns" aria-label="Tệp">
+      <button class="bbtn" id="mOpen" title="Mở file phổ (.vms, .txt, .csv)"><svg viewBox="0 0 24 24"><path d="M3 7h6l2 2h10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg><span>Mở phổ</span></button>
+      <button class="bbtn" id="mSave" title="Lưu project (Ctrl/⌘ S)"><svg viewBox="0 0 24 24"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z"/><path d="M8 3v5h7V3M8 21v-7h8v7"/></svg><span>Lưu project</span></button>
+      <button class="bbtn" id="mLoad" title="Mở project (.xpsfit.json)"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0-4-4m4 4 4-4M4 19h16"/></svg><span>Mở project</span></button>
+      <span class="sep"></span>
+      <button class="bbtn" id="mUndo" title="Hoàn tác (Ctrl/⌘ Z)"><svg viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></svg></button>
+      <button class="bbtn" id="mRedo" title="Làm lại (Ctrl/⌘ Y)"><svg viewBox="0 0 24 24"><path d="m15 14 5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h3"/></svg></button>
+    </nav>
+    <span class="spacer"></span>
+    <nav class="barbtns" aria-label="Ứng dụng">
+      <button class="bbtn" id="mInstall" hidden title="Cài XPS Fit Studio như một ứng dụng"><svg viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M12 8v6m-3-3 3 3 3-3"/></svg><span>Cài app</span></button>
+      <button class="bbtn" id="mHelp" title="Hướng dẫn, phím tắt, trích dẫn"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg><span>Trợ giúp</span></button>
+      <button class="bbtn" id="mCite" title="Ủng hộ và trích dẫn"><svg viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg><span>Trích dẫn</span></button>
+      <span class="seg" role="group" aria-label="Ngôn ngữ"><button id="lVi" aria-pressed="true">VI</button><button id="lEn" aria-pressed="false">EN</button></span>
+      <span class="seg" role="group" aria-label="Giao diện"><button id="thL" aria-pressed="false" title="Sáng">☀</button><button id="thA" aria-pressed="true" title="Theo hệ thống">A</button><button id="thD" aria-pressed="false" title="Tối">☾</button></span>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <aside class="panel side">
+    <div class="sidehead"><p class="label">Phổ</p><span class="count num" id="specCount" data-dyn></span></div>
+    <label class="drop" id="drop" for="file">
+      <strong>Mở file phổ</strong>
+      <small>VAMAS (.vms), file văn bản xuất từ máy đo (kể cả không có đuôi), .txt / .csv hai cột. Kéo thả được nhiều file.</small>
+    </label>
+    <input type="file" id="file" multiple hidden>
+    <input type="file" id="projFile" accept=".json,.xpsfit,application/json" hidden>
+    <ul class="speclist" id="speclist" data-dyn></ul>
+    <button class="btn sm ghost" id="loadSamples">+ Thêm dữ liệu mẫu</button>
+    <details id="metabox"><summary>Thông tin phổ</summary><dl class="meta" id="meta" data-dyn></dl></details>
+  </aside>
+
+  <div class="work">
+    <section class="panel chartpanel" aria-label="Đồ thị">
+      <div class="charthead">
+        <h2 id="specTitle" data-dyn>—</h2>
+        <div class="tools-row">
+          <button class="btn sm" id="btnSelect" title="Kéo ngang trên đồ thị để chọn vùng phân tích">Chọn vùng</button>
+          <button class="btn sm" id="btnAnchor2" title="Bấm lên phổ để đặt điểm neo nền">+ Điểm neo</button>
+          <button class="btn sm" id="btnAddMode" title="Bấm lên đồ thị để thêm peak tại vị trí đó">+ Peak bằng cú bấm</button>
+          <button class="btn sm" id="btnHandles" title="Hiện hoặc ẩn tay kéo trên từng peak">Tay kéo peak</button>
+          <button class="btn sm" id="figPng" title="Xuất hình PNG 600 dpi, nền trắng"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 16 5-5 4 4 3-3 6 6"/></svg>PNG</button>
+          <button class="btn sm" id="figSvg" title="Xuất hình vector SVG"><svg viewBox="0 0 24 24"><path d="M4 18c4 0 4-12 8-12s4 12 8 12"/></svg>SVG</button>
+        </div>
+      </div>
+      <div id="chart"></div>
+      <div class="hint" id="chartHint" data-dyn></div>
+    </section>
+
+    <section class="panel toolsp" aria-label="Công cụ">
+      <div class="tabs" role="tablist" aria-label="Chức năng">
+        <button class="tab" role="tab" id="tab-calib" aria-controls="pane-calib">Dữ liệu &amp; BE</button>
+        <button class="tab" role="tab" id="tab-bg" aria-controls="pane-bg">Nền</button>
+        <button class="tab" role="tab" id="tab-peaks" aria-controls="pane-peaks">Peak</button>
+        <button class="tab" role="tab" id="tab-quant" aria-controls="pane-quant">Định lượng</button>
+        <button class="tab" role="tab" id="tab-results" aria-controls="pane-results">Kết quả</button>
+      </div>
+
+      <section class="pane" role="tabpanel" id="pane-calib" aria-labelledby="tab-calib">
+        <div class="group">
+          <h4>Phổ đang chọn</h4>
+          <div class="row">
+            <div class="field"><label for="sName">Tên phổ (mức lõi)</label><input type="text" id="sName"></div>
+            <div class="field"><label for="sHv">hν (eV)</label><input type="number" id="sHv" step="0.1"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="sUnit">Đơn vị cường độ</label>
+              <select id="sUnit"><option value="counts">counts (số đếm)</option><option value="cps">counts/s (cps)</option><option value="au">a.u. (không rõ)</option></select></div>
+            <div class="field"><label for="sAcq">Thời gian thu mỗi điểm (s)</label><input type="number" id="sAcq" step="0.01" min="0"></div>
+          </div>
+          <div class="hint">Thời gian thu = dwell × số lần quét. Dùng để tính χ² theo thống kê Poisson và quy về cps khi định lượng.</div>
+        </div>
+        <div class="group">
+          <h4>Hiệu chỉnh năng lượng liên kết</h4>
+          <div class="row">
+            <div class="field"><label for="shift">Dịch BE (eV)</label><input type="number" id="shift" step="0.05"></div>
+            <button class="btn" id="shiftAll">Áp dụng cho mọi phổ</button>
+          </div>
+          <div class="row">
+            <div class="field"><label for="cLine">Mức chuẩn</label><input type="text" id="cLine" value="C 1s" style="width:90px"></div>
+            <div class="field"><label for="cMeas">Đỉnh đo được (eV)</label><input type="number" id="cMeas" step="0.01" placeholder="285.20"></div>
+            <div class="field"><label for="cRef">Giá trị chuẩn (eV)</label><input type="number" id="cRef" step="0.01" value="284.8"></div>
+          </div>
+          <div class="row">
+            <button class="btn" id="fromPeak">Lấy từ peak 1</button>
+            <button class="btn primary" id="calib">Tính độ dịch</button>
+          </div>
+          <div class="hint">Độ dịch = chuẩn − đo được. Thường dùng C 1s của carbon bám bẩn = 284.8 eV; nên ghi rõ mốc này trong bài báo.</div>
+        </div>
+      </section>
+
+      <section class="pane" role="tabpanel" id="pane-bg" aria-labelledby="tab-bg" hidden>
+        <div class="group">
+          <div class="row">
+            <div class="field"><label for="rLo">BE thấp (eV)</label><input type="number" id="rLo" step="0.1"></div>
+            <div class="field"><label for="rHi">BE cao (eV)</label><input type="number" id="rHi" step="0.1"></div>
+          </div>
+          <div class="row">
+            <div class="field"><label for="bgType">Kiểu nền</label>
+              <select id="bgType"><option value="shirley">Shirley</option><option value="smart">Smart (Shirley ≤ dữ liệu)</option><option value="tougaard">Tougaard U2</option><option value="linear">Tuyến tính</option><option value="none">Không trừ nền</option></select></div>
+            <div class="field"><label for="bgAvg">Số điểm trung bình ở mút</label><input type="number" id="bgAvg" min="1" max="30" step="1"></div>
+          </div>
+        </div>
+        <div class="group">
+          <h4>Điểm neo nền</h4>
+          <div class="row">
+            <button class="btn" id="btnAnchor">Đặt điểm neo</button>
+            <button class="btn" id="autoLevels">Mức nền tự động</button>
+            <button class="btn" id="clearAnchors">Xoá điểm neo</button>
+          </div>
+          <div class="anchors" id="anchorList" data-dyn></div>
+          <div class="hint">Kéo các vòng tròn trên đồ thị: lên/xuống đổi mức nền, kéo điểm mút sang ngang đổi vùng. Vòng tô đặc là mức đặt tay. Với Cu 2p, Ni 2p, Co 2p, đặt một điểm neo ở thung lũng giữa vệ tinh của 2p3/2 và peak 2p1/2.</div>
+        </div>
+        <details><summary>Chọn kiểu nền nào?</summary>
+          <p class="hint">Shirley: nền tại mỗi điểm tỉ lệ với diện tích peak phía BE thấp hơn, lặp đến khi hội tụ; dùng phổ biến nhất. Smart: Shirley không cho nền vượt dữ liệu đã làm trơn. Tougaard U2: theo tiết diện tán xạ không đàn hồi phổ quát, cần vùng rộng (30–50 eV phía BE cao). Tuyến tính: cho peak hẹp, nền phẳng.</p>
+        </details>
+      </section>
+
+      <section class="pane" role="tabpanel" id="pane-peaks" aria-labelledby="tab-peaks" hidden>
+        <div class="row">
+          <button class="btn" id="addPeak">+ Thêm peak</button>
+          <button class="btn primary" id="doFit" title="Ctrl/⌘ Enter">Khớp phổ</button>
+          <button class="btn" id="clearPeaks">Xoá hết</button>
+        </div>
+        <div class="row">
+          <label class="chk"><input type="checkbox" id="shareFwhm"> Dùng chung FWHM</label>
+          <div class="field"><label for="defShape">Dạng peak mặc định</label>
+            <select id="defShape"><option value="gl">GL dạng tích</option><option value="sgl">GL dạng tổng (pseudo-Voigt)</option><option value="la">LA bất đối xứng (kim loại)</option></select></div>
+        </div>
+        <div class="plist" id="peaks" data-dyn></div>
+        <div id="fitMsg" data-dyn></div>
+        <details><summary>Về dạng peak</summary>
+          <p class="hint">GL dạng tích: exp(−4 ln2 (1−m) t²) / (1 + 4 m t²), ký hiệu GL(100m); GL(30) là lựa chọn thường gặp. GL dạng tổng: (1−m)·Gauss + m·Lorentz. LA(α, β, G): Lorentz bất đối xứng mũ α phía BE cao, β phía BE thấp, chập với Gauss có FWHM G; dùng cho mức lõi kim loại (Cu⁰, Ni⁰, Pt⁰, Pd⁰) và carbon sp². α nhỏ thì đuôi dài. Cột "FWHM" là tham số độ rộng; FWHM đo thực trên đường peak nằm ở tab Kết quả.</p>
+        </details>
+      </section>
+
+      <section class="pane" role="tabpanel" id="pane-quant" aria-labelledby="tab-quant" hidden>
+        <div class="tablewrap"><table class="res" id="quantTable" data-dyn></table></div>
+        <div class="row">
+          <div class="field"><label for="imfp">Hiệu chỉnh IMFP</label>
+            <select id="imfp"><option value="0">Không (chỉ chia RSF)</option><option value="0.6">÷ KE^0.6</option><option value="0.7">÷ KE^0.7</option></select></div>
+          <div class="field"><label for="rsfSrc">Nguồn RSF (ghi vào Methods)</label><input type="text" id="rsfSrc" style="width:220px" placeholder="Scofield (Al Kα)"></div>
+        </div>
+        <div id="quantNote" data-dyn></div>
+        <div class="tablewrap"><table class="res" id="quantComps" data-dyn></table></div>
+        <div class="note">% nguyên tử = (I/RSF) / Σ(I/RSF), với I là diện tích sau trừ nền tính theo cps. RSF có sẵn là tiết diện Scofield (Al Kα, C 1s = 1), chỉ để tham khảo. Hãy dùng RSF trong thư viện của máy đo, vì RSF phụ thuộc hàm truyền và hình học của từng máy.</div>
+      </section>
+
+      <section class="pane" role="tabpanel" id="pane-results" aria-labelledby="tab-results" hidden>
+        <div class="stats" id="stats" data-dyn></div>
+        <div class="tablewrap"><table class="res" id="resTable" data-dyn></table></div>
+        <div class="group">
+          <h4>Xuất kết quả</h4>
+          <div class="row">
+            <div class="field"><label for="expFmt">Định dạng</label>
+              <select id="expFmt"><option value="sciplot">SciPlot Studio (.sciplot.json)</option><option value="xlsx">Excel (.xlsx)</option><option value="csv">CSV (.csv)</option></select></div>
+            <div class="field"><label for="expScope">Phổ</label>
+              <select id="expScope"><option value="one">Phổ đang chọn</option><option value="all">Tất cả phổ</option></select></div>
+            <button class="btn primary" id="doExport">Xuất file</button>
+          </div>
+          <div class="hint" id="expHint" data-dyn></div>
+          <div class="row"><button class="btn sm" id="copyTsv">Sao chép bảng dữ liệu</button><a class="btn sm" id="openSciplot" href="https://lephong2810.github.io/SciPlotStudio/" target="_blank" rel="noopener">Mở SciPlot Studio ↗</a></div>
+        </div>
+        <div class="group">
+          <h4>Đoạn Methods (tiếng Anh) cho bài báo</h4>
+          <textarea id="methods" class="methods" readonly data-dyn></textarea>
+          <div class="row"><button class="btn" id="copyMethods">Sao chép đoạn Methods</button><label class="chk"><input type="checkbox" id="methodsAll" checked> Gồm mọi phổ đã khớp</label></div>
+        </div>
+        <details><summary>Cách tính χ² và sai số</summary>
+          <p class="hint">χ² = Σ (y_đo − y_khớp)² / σ², σ² = số đếm (Poisson), trên mọi điểm trong vùng phân tích; χ² rút gọn = χ² / (N − p). Giá trị gần 1 nghĩa là phần dư cỡ nhiễu thống kê; 1–2 là tốt, 2–5 chấp nhận được với phổ phức tạp. Sai số (±1σ) lấy từ ma trận hiệp phương sai (JᵀWJ)⁻¹ nhân χ² rút gọn; nền giữ cố định nên sai số không gồm ảnh hưởng của cách chọn nền. Sai số chỉ hiện khi thông số chưa bị chỉnh sau lần khớp gần nhất.</p>
+        </details>
+      </section>
+    </section>
+  </div>
+</div>
+
+<dialog id="dlgHelp" aria-labelledby="hTitle">
+  <div class="dhead"><h3 id="hTitle">Hướng dẫn nhanh</h3><button class="x" data-close aria-label="Đóng">×</button></div>
+  <div class="dbody">
+    <div>
+      <h4>Quy trình</h4>
+      <ol>
+        <li>Mở file phổ (.vms hoặc file văn bản xuất từ máy đo) bằng nút Mở phổ hoặc kéo thả vào cột bên trái.</li>
+        <li>Tab Dữ liệu &amp; BE: kiểm tra đơn vị cường độ, hiệu chỉnh BE theo C 1s, rồi bấm Áp dụng cho mọi phổ.</li>
+        <li>Tab Nền: chọn vùng, kiểu nền, đặt và kéo điểm neo khi cần.</li>
+        <li>Tab Peak: thêm peak (nút hoặc bấm lên phổ), chọn dạng peak, doublet, khoá thông số, rồi bấm Khớp phổ. Kéo tay kéo trên đồ thị để tinh chỉnh.</li>
+        <li>Tab Định lượng: chọn RSF cho từng vùng để có % nguyên tử.</li>
+        <li>Tab Kết quả: xem χ², sai số, xuất Excel, xuất hình và chép đoạn Methods.</li>
+      </ol>
+    </div>
+    <div>
+      <h4>Phím tắt</h4>
+      <div class="keys">
+        <span><kbd>Ctrl/⌘</kbd> <kbd>Z</kbd> · <kbd>Y</kbd></span><span>Hoàn tác · làm lại</span>
+        <span><kbd>Ctrl/⌘</kbd> <kbd>S</kbd> · <kbd>O</kbd></span><span>Lưu · mở project (.xpsfit.json)</span>
+        <span><kbd>Ctrl/⌘</kbd> <kbd>Enter</kbd></span><span>Khớp phổ</span>
+        <span><kbd>1</kbd>–<kbd>5</kbd></span><span>Chuyển tab</span>
+      </div>
+    </div>
+    <div>
+      <h4>Dữ liệu của bạn</h4>
+      <p>Mọi tính toán chạy ngay trong trình duyệt. File phổ không được tải lên đâu cả. Phiên làm việc gần nhất được lưu tạm trong trình duyệt; dùng Lưu project để giữ lâu dài.</p>
+    </div>
+    <div>
+      <h4>Giới thiệu</h4>
+      <p id="aboutLine" data-dyn></p>
+      <p>Phát triển bởi TS. Lê Hoài Phong, Khoa Hóa học, Trường Đại học Khoa học Tự nhiên, ĐHQG-HCM. Phát hành theo giấy phép MIT. Dùng Plotly.js (MIT) và SheetJS Community Edition (Apache-2.0). XPS Fit Studio là dự án độc lập, không liên kết với hãng thiết bị hay phần mềm nào; mọi nhãn hiệu thuộc về chủ sở hữu.</p>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="dlgCite" aria-labelledby="cTitle">
+  <div class="dhead"><h3 id="cTitle">Ủng hộ và trích dẫn</h3><button class="x" data-close aria-label="Đóng">×</button></div>
+  <div class="dbody">
+    <p>XPS Fit Studio miễn phí cho mọi người. Nếu phần mềm có ích, xin hãy:</p>
+    <ul>
+      <li>Gắn ⭐ cho repo trên GitHub để nhiều nhà nghiên cứu biết đến công cụ.</li>
+      <li>Ghi nhận XPS Fit Studio trong bài báo, luận văn và báo cáo bằng một trong các câu dưới đây.</li>
+    </ul>
+    <p><a class="btn primary" id="starLink" href="https://github.com/lephong2810/XPSFitStudio" target="_blank" rel="noopener">⭐ Star trên GitHub</a></p>
+    <div id="citeList" data-dyn></div>
+  </div>
+</dialog>
+
+<div class="toast" id="toast" hidden data-dyn></div>
+
+<script src="vendor/plotly-2.27.0.min.js"></script>
+<script src="vendor/xlsx-0.18.5.full.min.js"></script>
+<script src="i18n.js"></script>
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

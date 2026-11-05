@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+message: "If XPS Fit Studio helped your work, please acknowledge or cite it as below."
+title: "XPS Fit Studio"
+abstract: "A free, browser-based tool for X-ray photoelectron spectroscopy (XPS) data processing: VAMAS import, binding-energy calibration, Shirley and Tougaard backgrounds, Gaussian–Lorentzian and asymmetric line shapes, χ² statistics with parameter uncertainties, RSF quantification and Excel export."
+type: software
+authors:
+  - family-names: "Le"
+    given-names: "Phong Hoai"
+    affiliation: "University of Science, Vietnam National University Ho Chi Minh City"
+version: "1.0.0"
+date-released: "2026-11-05"
+license: MIT
+repository-code: "https://github.com/lephong2810/XPSFitStudio"
+url: "https://lephong2810.github.io/XPSFitStudio/"
+keywords: [XPS, X-ray photoelectron spectroscopy, peak fitting, Shirley background, surface analysis, materials science]
